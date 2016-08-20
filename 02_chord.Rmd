@@ -1,0 +1,136 @@
+---
+title: "Migration flows"
+author: "Duc-Quang Nguyen"
+date: "15 Aug 2016"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: journal
+---
+
+
+## Data
+
+### Main sources
+* [Nikola Sander, Guy J. Abel & Ramon Bauer ](http://www.global-migration.info)
+* [Data wrapped into a R package and procedures](https://gjabel.wordpress.com/2016/05/18/updated-circular-plots-for-directional-bilateral-migration-data/)
+* [research paper](data/WP2016_02.pdf)
+
+### Related data
+  * Issue: data is not completely disaggretated - origin other North & other South
+  * [UN population division - International migrant stock - By destination and origin](http://www.un.org/en/development/desa/population/migration/data/estimates2/estimates15.shtml), xls saved in data 
+  * [Read the doc about the data & methodology](data/MigrationStockDocumentation_2015.pdf)
+
+## Related stories
+
+* [Spiegel Global Migration? Actually, The World Is Staying Home](http://www.spiegel.de/international/world/why-global-migration-statistics-do-not-add-up-a-1090736.html)
+* ['We don't know nearly enough about migration'](http://phys.org/news/2016-05-dont-migration.html)
+* [Most Conventional Wisdom About Refugees and Immigration Is Wrong](http://www.fastcoexist.com/3060766/most-conventional-wisdom-about-refugees-and-immigration-is-wrong)
+* [scientificamerican Global Migrant Flows: An Interactive Map](http://blogs.scientificamerican.com/observations/global-migrant-flows-an-interactive-map/)
+
+## d3 example to write arched text
+
+* http://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html
+* http://www.visualcinnamon.com/2016/06/orientation-gradient-d3-chord-diagram.html
+
+# Code
+
+### Packages & settings
+
+```{r setup, include=FALSE}
+#install.packages("migest")
+library(migest)
+library(readr)
+library(tidyr)
+library(dplyr)
+library(magrittr)
+library(countrycode)
+library(ggplot2)
+library(scales)
+library(swiMap)
+library(swiTheme)
+library(forcats)
+
+### Interactive 
+library(htmltools)
+library(swiRcharts)
+library(chorddiag)
+require(rCharts)
+library(htmlwidgets)
+```
+
+### Load & wrangle data
+
+Based on R code by [Guy Abel's migest](https://github.com/gjabel/migest/blob/master/demo/cfplot_reg2.R)
+
+```{r load & wrangle data}
+data <- read.csv(system.file("vidwp", "reg_flow.csv", package = "migest"), stringsAsFactors=FALSE)
+
+# transform into a matrix: row origin - column destination
+mat <- data %>% spread(dest_reg, flow)
+rownames(mat) <- mat$orig_reg
+mat %<>% select(-orig_reg) %>% as.matrix()
+
+# order regions geographically
+stopifnot(all(colnames(mat) == rownames(mat)))
+regions.ordered <- c(
+  "Eastern Europe & Central Asia", "Europe", "Africa",
+  "Eastern Asia", "Southern Asia", "Western Asia",
+  "Oceania", "Northern America", "Latin America & Caribbean"
+  )
+names(regions.ordered) <- c('#89a23a', '#666633', '#663333', 
+                            '#336666', '#368596', '#669999', 
+                            '#666699', '#ac673e', '#ac7f3e')
+stopifnot(all(regions.ordered %in% colnames(mat)))
+
+idx <- match(regions.ordered, colnames(mat))
+mat <- mat[idx, idx]
+
+```
+
+
+```{r interactive cord diagram}
+## Plot setting
+groupnamePadding <- 10
+margin  <- 60
+groupnameFontsize <- 13
+tickInterval <- 0.5
+ticklabelFontsize <- 10
+showTicks <- T
+precision <- 3
+
+tooltipGroupConnector <- " &rarr; "
+tooltipUnit <- " millions"
+
+# plot chord diagram
+chord <- chorddiag(
+  mat, groupnamePadding = groupnamePadding, groupnameFontsize = groupnameFontsize, 
+  tooltipGroupConnector = tooltipGroupConnector, groupColors = names(regions.ordered), margin = margin, 
+  tickInterval = tickInterval, groupThickness = 0.07, precision = precision,
+  tooltipUnit = tooltipUnit,
+  ticklabelFontsize = ticklabelFontsize,  showTicks = showTicks)
+
+  saveWidget(chord, file = "chord_tmp.html", selfcontained = FALSE, libdir = "js")
+
+  html.grabbed <- grab_widgetHTML("chord_tmp.html")
+  html.code <- html.grabbed[['html']]
+  istart <- min(grep("script", html.code))
+  iend <- max(grep("</head>", html.code))
+  header <- html.code[istart:iend-1]
+    
+  save_html(
+    tags$html(
+      tags$head(HTML(paste0(includeHTML("styles.html"), paste0(header, collapse =""), collapse =""))),
+      tags$body(
+        h2(HTML("asfsadf")),
+        div(class = "descr", "description yo!"),
+        div(class = "container", HTML(html.code[html.grabbed[['istart']]:html.grabbed[['iend']]])),
+        #div(id = "cite", HTML(paste0(txt['source', lang], ": ", txt['source.name', lang]), " | swissinfo.ch |", htmlLink("https://twitter.com/duc_qn", "@duc_qn"))),
+        HTML(iframeresizer)
+      )), file = paste0("chord_migration.html"), libdir = "js"
+  )
+  swi_libWidget_overwrite()
+
+```
+

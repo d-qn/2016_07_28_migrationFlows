@@ -1,0 +1,198 @@
+---
+title: "International migrant stock"
+author: "Duc-Quang Nguyen | swissinfo.ch"
+date: " 2016"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: simplex
+---
+
+## Related stories
+
+* [Telegraph](http://www.telegraph.co.uk/news/worldnews/middleeast/12111108/Mapped-Which-country-has-the-most-immigrants.html)
+
+## Points
+
+* Heavily reliant on foreign labor to sustain economic growth and high standard of living in the country, the UAE [migrationpolicy](http://www.migrationpolicy.org/article/labor-migration-united-arab-emirates-challenges-and-responses)
+* South-South migration flows (across developing countries) continued to grow compared to South-North movements (from developing to developed countries.) In 2015, 90.2 million international migrants born in developing countries were living in other countries in the Global South, while 85.3 million born in the South lived in countries in the Global North. [IOM factsheet](https://www.iom.int/news/iom-releases-global-migration-trends-2015-factsheet)
+
+
+```{r setup, include=FALSE}
+getData <- F
+wb.db <- 'SM.POP.TOTL.ZS'
+data.file <- "data/intlMigrantStock_wb.csv"
+
+regions.sub <- c(
+  "World", "North America" ,
+  "Europe & Central Asia", "Middle East & North Africa", 
+  "Sub-Saharan Africa", "Latin America & Caribbean",
+  "East Asia & Pacific",  "South Asia"
+   )
+names(regions.sub) <- c("#222244", "#3a9736", "#366096", "
+#663333", "#ac673e", "#996666", "#336666", "#368596")
+
+countries.sub <- c(
+  'Singapore', 'Switzerland', 'United Arab Emirates', 'Spain', 'Germany', 'Italy', 'United Kingdom')
+
+
+library(readr)
+library(tidyr)
+library(dplyr)
+library(magrittr)
+library(countrycode)
+library(ggplot2)
+library(scales)
+library(swiMap)
+library(swiTheme)
+library(forcats)
+
+### Getting data in packages
+library(WDI)
+
+### Interactive 
+library(htmltools)
+library(shiny)
+library(swiRcharts)
+library(metricsgraphics)
+library(ggiraph)
+```
+
+```{r load and wrangle data}
+if(getData) {
+  data.dl <- WDI(
+    indicator = wb.db,
+    start = 1950,  
+    end = 2016, 
+    extra = TRUE, 
+    cache = NULL
+  )
+  colnames(data.dl)[3] <- 'value'
+
+  data <- data.dl %>% select(-capital, -longitude, -latitude, -lending)
+	write.csv(data, file = data.file, row.names = F)
+} else {
+  data <- read_csv( file = data.file )
+}
+
+# discard NA values
+data <- filter(data, !is.na(value)) %>% arrange(year)
+data$value <- data$value / 100
+
+```
+
+```{r get some stats}
+# find the country with the most changes over time
+dd <- data %>% group_by(iso2c,iso3c,country, region) %>%
+  summarise(
+    deltaPc = last(value) - first(value),
+    startT = first(year),
+    endT = last(year)
+  ) %>% ungroup() %>% arrange(desc(abs(deltaPc)))
+dd %>% filter(country == "Switzerland")
+#dd %>% as.data.frame() %>% head(20)
+
+# order data by its immigration in the last year
+ddd <- data %>% filter(year == 2015) %>% arrange(desc(value))
+#ddd %>% as.data.frame() %>% head(30)
+cat("\n", "Switzerland rank of migrant stock in 2015: ")
+which(ddd$country == "Switzerland")
+
+dd %>% filter(region == "Aggregates") 
+
+# iso2withN <- unique(data$iso2c)[grep("\\d", unique(data$iso2c))]
+# dd[match(iso2withN, dd$iso2c),] %>% as.data.frame()
+# 
+# dd %>% filter(country %in% regions.sub)
+
+```
+
+
+```{r plot}
+stheme <- function(
+  base_size = 12, 
+  base_family = "OpenSans-CondensedLight", 
+  title_family = "OpenSans-CondensedBold"
+) {
+  swi_theme(
+    base_size = base_size, base_family = base_family, title_family = title_family
+  ) + theme(
+    legend.position = "none",
+    axis.line.x = element_blank(), axis.ticks.x  = element_blank(),
+    axis.text.x = element_blank(), 
+    strip.text = element_blank(),
+    panel.background = element_rect(fill = "#f3f2f2", size = 0),
+    panel.margin.x = unit(4, "lines"),
+    panel.margin.y = unit(8, "lines"),
+    plot.margin = unit(c(3, 2, 0, 0), "mm")
+  )
+}
+
+reg.df <- data %>% filter(country %in% regions.sub)
+
+reg.df$country <- factor(reg.df$country, levels = regions.sub)
+
+gp <- ggplot(reg.df) + 
+  geom_area(aes(year, value, group = country, fill = country)) +
+  scale_x_continuous(name = "", expand = c(0,0)) + 
+  scale_y_continuous(name = "", expand = c(0,0), labels=percent) + 
+  facet_wrap(~ country, ncol = 2) + stheme() +
+  scale_fill_manual(values = swi_rpal) +
+  geom_text(
+    aes(label = country),
+    x = 1990.4, y = Inf, hjust = 0, vjust = 1.8,
+    family = "OpenSans-CondensedBold", colour = "#404040"
+    )
+
+```
+
+```{r metricgraphics interactive}
+
+
+lang <- 'EN'
+data$value <- data$value / 100
+
+listMetricgraphic <- function(df, regions) {
+  lapply(regions, function(reg) {
+    col <- names(regions)[which(regions == reg)]
+    mjs_plot(data = df %>% filter(country == reg), 
+             x = year, y = value,
+             format="percentage", 
+             width="101.5%", height="230px",
+             decimals = 1,
+             # description = as.character(descr[p]),
+             left = 28, right = 4, bottom = 19, top = 0, buffer = 0, linked = T, 
+             title = "") %>%
+      mjs_line(area = TRUE, color = col) %>%
+      mjs_axis_y(min_y = 0, max_y = max(df$value, na.rm = T)) %>% 
+      mjs_axis_x(xax_count = 0) %>%
+      mjs_labs(x_label = reg)
+  })  
+}
+
+plots <- listMetricgraphic(reg.df, regions.sub)
+
+save_html(
+  fluidPage(
+    tags$h2("asdfsdaf asdf"),
+    div(class = "descr", "% of foreign born population by country by geographic regions"),
+    div(class="graphic", 
+        fluidRow(lapply(1:length(plots), function(i) {
+          column(6, plots[[i]])
+        }))#,
+        #div(id = "cite", HTML("footer asdfasdf asdf"))
+    ),
+    HTML(iframeresizer)  
+  ), #background = "#EDEDED", 
+  file = paste0("foreignerBorn_byRegions_", lang,".html"), libdir = "js")
+
+# overwrite meticgraphics.css by custom version for small multiples using x axis title 
+original <- list.files("js", "metricsgraphics.css", full.names = T, recursive = T)
+file.copy(
+  list.files(system.file("extdata", package="swiRcharts"), 'metricsgraphics_smallMultiple_xTitles.css', full.names = T),
+  original, overwrite = T)
+ 
+  
+
+```
