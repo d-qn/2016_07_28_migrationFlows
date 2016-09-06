@@ -216,9 +216,9 @@ tooltipUnit &lt;- &quot; millions&quot;
 # plot chord diagram
 chord &lt;- chorddiag(
   mat, groupnamePadding = groupnamePadding, groupnameFontsize = groupnameFontsize, 
-  tooltipGroupConnector = tooltipGroupConnector, groupColors = names(regions.ordered), margin = margin, 
-  tickInterval = tickInterval, groupThickness = 0.07, precision = precision,
-  tooltipUnit = tooltipUnit,
+  tooltipGroupConnector = tooltipGroupConnector, groupColors = names(regions.ordered), 
+  margin = margin, tickInterval = tickInterval, groupThickness = 0.07, 
+  precision = precision, tooltipUnit = tooltipUnit,
   ticklabelFontsize = ticklabelFontsize,  showTicks = showTicks)
 
   saveWidget(chord, file = &quot;chord_tmp.html&quot;, selfcontained = FALSE, libdir = &quot;js&quot;)

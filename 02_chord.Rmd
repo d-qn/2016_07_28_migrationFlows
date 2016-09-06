@@ -106,9 +106,9 @@ tooltipUnit <- " millions"
 # plot chord diagram
 chord <- chorddiag(
   mat, groupnamePadding = groupnamePadding, groupnameFontsize = groupnameFontsize, 
-  tooltipGroupConnector = tooltipGroupConnector, groupColors = names(regions.ordered), margin = margin, 
-  tickInterval = tickInterval, groupThickness = 0.07, precision = precision,
-  tooltipUnit = tooltipUnit,
+  tooltipGroupConnector = tooltipGroupConnector, groupColors = names(regions.ordered), 
+  margin = margin, tickInterval = tickInterval, groupThickness = 0.07, 
+  precision = precision, tooltipUnit = tooltipUnit,
   ticklabelFontsize = ticklabelFontsize,  showTicks = showTicks)
 
   saveWidget(chord, file = "chord_tmp.html", selfcontained = FALSE, libdir = "js")
@@ -132,5 +132,7 @@ chord <- chorddiag(
   )
   swi_libWidget_overwrite()
 
+  
+  
 ```
 
