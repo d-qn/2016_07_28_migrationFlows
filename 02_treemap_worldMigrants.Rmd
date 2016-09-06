@@ -97,6 +97,7 @@ regionOrdered <- dd %>% group_by(region) %>% summarise(tot = sum(abs)) %>%
   arrange(desc(tot)) %>% ungroup() %>% 
   select(region) %>% unlist(use.names = F)
 
+tot.test <- sum(dd$abs)
 ```
 
 
@@ -113,6 +114,16 @@ for (lang in 'FR') {# colnames(txt)) {
   # get country translations. For NA translation, get the English name
   df$labelCountry <- countryTranslation(df$iso2c, lang)[,-1]
   df[which(is.na(df$labelCountry)), 'labelCountry'] <- df[which(is.na(df$labelCountry)), 'country']
+  
+  # Merge countries with less 25k foreigners
+  df[which(df$abs < 40000), 'labelCountry'] <- txt['others', lang]
+  df %<>% group_by(labelCountry, region) %>%
+    summarise(
+      abs = sum(abs),
+      pc = mean(pc)
+    ) %>% ungroup()
+  stopifnot(sum(df$abs) == tot.test)
+  df$totShare <- round((df$abs / tot.test) * 100, 1)
   
   dff <- treemap(df, draw = F, index = c("region", "labelCountry"), vSize = "abs", type = "index", vColor = "pc", palette = swi_rpal[c(6, 9, 19, 4, 8, 1, 13)])
   

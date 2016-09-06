@@ -231,7 +231,7 @@ singleMetricGraphic <- function(df, reg, regions, height = "240px", axis.x = "ye
   mjs_plot(data = dff, 
            x=axis.labels[1], y = axis.labels[2],
            format="percentage", 
-           width="101%", height=height,
+           width="100%", height=height,
            decimals = 1,
            left = 28, right = 4, bottom = 20, top = 0, buffer = 0, linked = F, 
            title = "") %>%

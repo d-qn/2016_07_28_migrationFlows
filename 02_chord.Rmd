@@ -23,7 +23,7 @@ output:
   * [Read the doc about the data & methodology](data/MigrationStockDocumentation_2015.pdf)
 
 ## Related stories
-
+* [Le monde flux de migrants](http://www.lemonde.fr/planete/article/2014/05/29/230-millions-de-migrants-dans-le-monde-des-flux-qui-ne-cessent-d-augmenter_4428870_3244.html)
 * [Spiegel Global Migration? Actually, The World Is Staying Home](http://www.spiegel.de/international/world/why-global-migration-statistics-do-not-add-up-a-1090736.html)
 * ['We don't know nearly enough about migration'](http://phys.org/news/2016-05-dont-migration.html)
 * [Most Conventional Wisdom About Refugees and Immigration Is Wrong](http://www.fastcoexist.com/3060766/most-conventional-wisdom-about-refugees-and-immigration-is-wrong)

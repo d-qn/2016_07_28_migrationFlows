@@ -196,7 +196,9 @@ dd$region &lt;- names(region2iso3)[match(dd$region, region2iso3)]
 
 regionOrdered &lt;- dd %&gt;% group_by(region) %&gt;% summarise(tot = sum(abs)) %&gt;% 
   arrange(desc(tot)) %&gt;% ungroup() %&gt;% 
-  select(region) %&gt;% unlist(use.names = F)</code></pre>
+  select(region) %&gt;% unlist(use.names = F)
+
+tot.test &lt;- sum(dd$abs)</code></pre>
 <pre class="r"><code>lang &lt;- 'FR'
 for (lang in 'FR') {# colnames(txt)) {
   df &lt;- dd
@@ -208,6 +210,16 @@ for (lang in 'FR') {# colnames(txt)) {
   # get country translations. For NA translation, get the English name
   df$labelCountry &lt;- countryTranslation(df$iso2c, lang)[,-1]
   df[which(is.na(df$labelCountry)), 'labelCountry'] &lt;- df[which(is.na(df$labelCountry)), 'country']
+  
+  # Merge countries with less 25k foreigners
+  df[which(df$abs &lt; 40000), 'labelCountry'] &lt;- txt['others', lang]
+  df %&lt;&gt;% group_by(labelCountry, region) %&gt;%
+    summarise(
+      abs = sum(abs),
+      pc = mean(pc)
+    ) %&gt;% ungroup()
+  stopifnot(sum(df$abs) == tot.test)
+  df$totShare &lt;- round((df$abs / tot.test) * 100, 1)
   
   dff &lt;- treemap(df, draw = F, index = c(&quot;region&quot;, &quot;labelCountry&quot;), vSize = &quot;abs&quot;, type = &quot;index&quot;, vColor = &quot;pc&quot;, palette = swi_rpal[c(6, 9, 19, 4, 8, 1, 13)])
   
