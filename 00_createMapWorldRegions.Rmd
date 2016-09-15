@@ -1,0 +1,106 @@
+---
+title: "00 create globe of different geographical regions"
+author: "Duc-Quang Nguyen"
+date: "9 sept 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+data.file <- "data/UNCountries.json"
+
+regions <- structure(
+  c("Central Asia and Transcaucasia", "Eastern/ South-East Europe", "West/ Central Europe", 
+    "North Africa", "Eastern Africa", "Southern Africa", "West and Central Africa",
+    "East and South-East Asia", "South Asia", "Near and Middle East / South-West Asia", 
+    "Oceania", "North America", "The Caribbean", "South America", "Central America"
+  ),
+  names = c("EECA", "EECA", "E", "A", "A", "A", "A", "EA", "SA", "WA", "O", "NA", "LAC", "LAC", "LAC")
+)
+
+
+library(dplyr)
+library(magrittr)
+library(tidyr)
+library(swiMap)
+library(readr)
+require(rgdal)
+library(jsonlite)
+library(maptools)
+require(ggplot2)
+library(ggmap)
+
+```
+
+
+```{r load data }
+# get a data.frame with country region (world bank data)
+data <- fromJSON(txt = data.file)
+
+idx <- match(data$subregion, regions)
+if(any(is.na(idx))) stop()
+data$reg <- names(regions)[idx]
+
+path <- getPathShp('world')
+layers <-  ogrListLayers(path)
+
+# read shapefiles for given layer
+world <- readOGR(path, layer = layers[1])
+world.df <- formatShp(world) %>% 
+  select(-LON, -LAT, -SUBREGION, -POP2005, -AREA, -piece)
+
+# Display map elements with no matching iso2c
+iso3.missing <- as.character(unique(world.df$ISO3)[which(!unique(world.df$ISO3) %in% data$iso3)])
+world.df[match(iso3.missing, world.df$ISO3),]
+
+# hack 
+nam <- world.df[which(world.df$ISO3 == 'ESH')[1],]
+data <- rbind(data, data.frame(region = "AFRICA", subregion = "West and Central Africa", iso3 = nam$ISO3, country = "Western Sahara", reg = "A"))
+
+```
+
+
+```{r plot globe}
+mapTheme <- function() {
+  theme_minimal(base_size = 12) +
+      theme(
+        plot.margin = unit(c(0,0,0,0), "mm"),
+        panel.spacing = unit(c(0,0,0,0), "mm"),
+        legend.position = "none",
+        panel.grid = element_blank(),
+        axis.ticks = element_blank(),
+        axis.line = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank()
+      )
+}
+
+
+lapply(1:length(unique(names(regions))), function(i) {
+  regi <- unique(names(regions))[i]
+  dd <- data %>% filter(reg == regi)
+  
+  df <- world.df
+  df$color <- ifelse(df$ISO3 %in% dd$iso3, T, F)
+ 
+  lonLat.view <- df %>% filter(color == 1, ISO2 != "GL") %>%
+    summarise(
+      lat = median(lat),
+      lon = median(long)
+    ) %>% unlist()
+  
+  gg <- ggplot() + 
+    geom_polygon(data = df, aes(x = long, y = lat, group = group, fill = color), 
+    size = 0.05, colour = "#edf1f8") + mapTheme() +
+    coord_quickmap() + 
+    coord_map("ortho", orientation = c(lonLat.view['lat'], lonLat.view['lon'], 0)) + 
+    scale_fill_manual(values = c("#c7d6ea", "#294870")) +
+    scale_x_continuous(expand=c(0,0)) +
+    scale_y_continuous(expand=c(0,0))
+  
+  png(filename = paste0("output/", regi, "_map.png"), width = 480, height = 500, res = 300) 
+  plot(gg)
+  dev.off()
+})
+
+
+```

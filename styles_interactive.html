@@ -2,7 +2,7 @@
 
 <style>
 
-body, h1, h2, h3, h4, h5, h6, p, .descr, #cite, .footer {
+body, h1, h2, h3, h4, h5, h6, p, .descr, .subtitle, #cite, .footer {
    text-rendering: optimizeLegibility;
    font-smoothing: antialiased;
    font-family: 'Open Sans Condensed', sans-serif;
@@ -13,13 +13,13 @@ body, h1, h2, h3, h4, h5, h6, p, .descr, #cite, .footer {
 .tooltip {
     position: relative;
     display: inline-block;
-    border-bottom: 1.5px dotted #666666;
+    border-bottom: 1px dotted #b3b3b3;
 }
 
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 160px;
-    background-color: #ecf1f8;
+    background-color: #f2f2f2;
     text-align: center;
     border-radius: 6px;
     padding: 5px 0;
@@ -46,16 +46,22 @@ body, h1, h2, h3, h4, h5, h6, p, .descr, #cite, .footer {
 }
 
 #cite {
-    font-size: 0.7em;
+    position: fixed;
+    bottom:0;
+    font-size: 0.8em;
     font-weight: lighter;
     color: #4d4d4d;
     text-align: right;
-    margin-top:0px;
+    margin-top:30px;
     margin-left:2%;
     margin-right:10px;
 }
 #cite a { text-decoration: none; color: #821122; }
 
+.container {
+    width: 100%;
+    top:0.1%;
+}
 
 .footer {
   font-size: 1.1em;
@@ -66,13 +72,23 @@ body, h1, h2, h3, h4, h5, h6, p, .descr, #cite, .footer {
 }
 
 .descr {
- font-size: 1em;
+ font-size: 1.1em;
  color: #4d4d4d;
  font-weight: lighter;
  max-width:90%;
  margin-left:0.7%;
  margin-bottom:5px;
 }
+
+.subtitle{
+ font-size: 0.9em;
+ line-height: 98%;
+ color: #4d4d4d;
+ font-weight: lighter;
+ max-width:97%;
+ margin-left:3%;
+}
+
 
 p {
    margin-left:2%;

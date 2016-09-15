@@ -35,6 +35,9 @@ http://www.global-migration.info
 
 
 
+
+
+
 ## Data
 
 ### Main sources
@@ -54,6 +57,10 @@ http://www.global-migration.info
 * [Most Conventional Wisdom About Refugees and Immigration Is Wrong](http://www.fastcoexist.com/3060766/most-conventional-wisdom-about-refugees-and-immigration-is-wrong)
 * [scientificamerican Global Migrant Flows: An Interactive Map](http://blogs.scientificamerican.com/observations/global-migrant-flows-an-interactive-map/)
 
+## d3 example to write arched text
+
+* http://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html
+* http://www.visualcinnamon.com/2016/06/orientation-gradient-d3-chord-diagram.html
 
 ## Text snippets
 * [from](https://www.fastcoexist.com/3060766/most-conventional-wisdom-about-refugees-and-immigration-is-wrong)
@@ -82,7 +89,6 @@ translation.file <- "input/Global migration flow, 2010-2015 - chord diagram - Sh
 
 #install.packages("migest")
 library(migest)
-library(circlize)
 library(readr)
 library(tidyr)
 library(dplyr)
@@ -91,12 +97,15 @@ library(countrycode)
 library(ggplot2)
 library(scales)
 library(swiMap)
-library(extrafont)
+library(swiTheme)
+library(forcats)
 
 ### Interactive 
 library(htmltools)
-library(htmlwidgets)
 library(swiRcharts)
+library(chorddiag)
+require(rCharts)
+library(htmlwidgets)
 ```
 
 ### Load & wrangle data
@@ -115,6 +124,16 @@ if(length(cidx > 0)) {
 }
 colnames(txt)
 
+
+data <- read.csv(system.file("vidwp", "reg_flow.csv", package = "migest"), stringsAsFactors=FALSE)
+# transform into a matrix: row origin - column destination
+mat <- data %>% spread(dest_reg, flow)
+rownames(mat) <- mat$orig_reg
+mat %<>% select(-orig_reg) %>% as.matrix()
+
+# order regions geographically
+stopifnot(all(colnames(mat) == rownames(mat)))
+
 regions <- data.frame(
   name = c(
     "Eastern Europe & Central Asia", "Europe", "Africa",
@@ -122,109 +141,101 @@ regions <- data.frame(
     "Oceania", "Northern America", "Latin America & Caribbean"
   ), 
   code = c("EECA", "E", "A", "EA", "SA", "WA", "O", "NA", "LAC"),
-  color = c('#ac7f3e', '#336666', '#666633', 
-            '#ab3d3f', '#996666', '#ac673e', 
-            '#663333', '#333366', '#366096')
+  color = c('#89a23a', '#666633', '#663333', 
+            '#336666', '#368596', '#669999', 
+            '#666699', '#ac673e', '#ac7f3e')
 )
 
+stopifnot(all(regions$name %in% colnames(mat)))
+
+idx <- match(regions$name, colnames(mat))
+# reorder
+mat <- mat[idx, idx]
+
+# asign key 
+rownames(mat) <- regions[match(rownames(mat), regions$name), 'code']
+colnames(mat) <- regions[match(colnames(mat), regions$name), 'code']  
+  
 ```
 
 ```{r static cord diagram}
+library("migest")
+demo(cfplot_reg2, package = "migest", ask = FALSE)
 
-## Load data 
-# df0 the bidirectional flow data
-df0 <- read.csv(system.file("vidwp", "reg_flow.csv", package = "migest"), stringsAsFactors=FALSE)
+```
 
-# the metadata
-df <- read.csv(system.file("vidwp", "reg_plot.csv", package = "migest"), stringsAsFactors=FALSE)
+```{r interactive cord diagram}
+## Plot setting
+groupnamePadding <- 10
+margin  <- 60
+groupnameFontsize <- 13
+tickInterval <- 0.5
+ticklabelFontsize <- 10
+showTicks <- T
+precision <- 3
 
-# overwrite colors
-idx <- match(regions$name, df$region)
-if(any(is.na(idx))) stop()
-df$col1 <- as.character(regions[idx, 'color'])
-df$code <- regions[idx, 'code']  
-for (lang in 'EN') {
 
-  chord.path <- paste0("output/chordDiagram_" , lang, ".png")
-  html.out <- paste0("chord_migration_", lang, ".html")
-  font.family <-  "OpenSans-CondensedLight"
-  title.family <- "OpenSans-CondensedBold"
+lang <- 'EN'
+
+# tooltipGroupConnector <- " &rarr; "
+# tooltipUnit <- " millions"
+
+# get short region names
+matt <- mat
+rownames(matt) <- txt[paste0(rownames(matt), ".short"), lang]
+colnames(matt) <- txt[paste0(colnames(matt), ".short"), lang]
+
+# plot chord diagram
+chord <- chorddiag(
+  matt, groupnamePadding = groupnamePadding, groupnameFontsize = groupnameFontsize, 
+  tooltipGroupConnector = txt["tp.connector", lang], groupColors = regions$color, 
+  margin = margin, tickInterval = tickInterval, groupThickness = 0.07, 
+  precision = precision, tooltipUnit = paste0(" ", txt["tp.unit", lang]),
+  ticklabelFontsize = ticklabelFontsize,  showTicks = showTicks)
+
+  #chord$height <- "95%"
+  saveWidget(chord, file = "chord_tmp.html", selfcontained = FALSE, libdir = "js")
+
+  html.grabbed <- grab_widgetHTML("chord_tmp.html")
+  html.code <- html.grabbed[['html']]
+  istart <- min(grep("script", html.code))
+  iend <- max(grep("</head>", html.code))
+  header <- html.code[istart:iend-1]
   
-  df1 <- df
-  df1$region <- txt[as.character(df1$code), lang]
-  df1 <- df1[match( c('NA', 'A', 'E','EECA', 'WA', 'SA', 'EA', 'O', 'LAC'), df1$code),]
-    
-  df2 <- df0
-  df2$orig_reg <- txt[as.character(regions[match(df2$orig_reg, regions$name), 'code']), lang]
-  df2$dest_reg <- txt[as.character(regions[match(df2$dest_reg, regions$name), 'code']), lang]
-  
-  ## Create the static graphic
-  png(chord.path,  res = 200, pointsize = 9, height = 1100 * 1.1, 
-        width = 1100 * 1.1)
-  
-  par(mar=c(1,0,0,0), family = font.family)
-  chordDiagram(x = df2, grid.col = df1$col, transparency = 0.25,
-    order = df1$region, directional = 1,
-    direction.type = c("arrows", "diffHeight"), diffHeight  = -0.04,
-    annotationTrack = "grid", annotationTrackHeight = c(0.05, 0.1),
-    link.arr.type = "big.arrow", link.sort = TRUE, link.largest.ontop = TRUE)
-      
-  circos.trackPlotRegion(
-    track.index = 1, 
-    bg.border = NA, 
-    panel.fun = function(x, y) {
-      xlim = get.cell.meta.data("xlim")
-      sector.index = get.cell.meta.data("sector.index")
-      reg = df1$region[df1$region == sector.index]
-      color =  df1$col1[df1$region == sector.index]
-        
-      circos.text(x = mean(xlim), y = 4.1, col = color,
-                  labels = reg, facing = "bending", cex = 1, family = title.family)
-      circos.axis(h = "top", 
-                  major.at = seq(0, xlim[2], by = ifelse(test = xlim[2]>10, yes = 2, no = 1)), 
-                  minor.ticks = 1, major.tick.percentage = 0.5, labels.cex = 0.6,
-                  labels.niceFacing = FALSE)
-    }
-  )
-  dev.off()
-
-  ## HTMLize 
   footer <- paste0(
     txt['source', lang], ": ", htmlLink(txt['source.url', lang], txt['source.name', lang]), " | ",
     txt['code', lang], ": ", htmlLink(txt['code.url', lang], txt['code.name', lang]), " | ",
     htmlLink("http://www.swissinfo.ch", 'swissinfo.ch')               
   )
-  descr <- paste0(txt["descr1", lang])
+
+  nn <- 'E'
   
   save_html(
     tags$html(
-      tags$head(includeHTML("styles.html")),
+      tags$head(HTML(paste0(includeHTML("styles.html"), paste0(header, collapse =""), collapse =""))),
       tags$body(
         h2(HTML(txt["title1", lang])),
-        div(class = "descr", HTML(descr)),
+        div(class = "descr", txt["descr1", lang]),
         p(
           invisible(sapply(1:nrow(regions), function (i) {
-            HTML(
-              paste0(div(class = "tooltip", HTML(paste0(' <h5>', txt[as.character(regions[i, 'code']), lang], "</h5> ")), 
-              span(class="tooltiptext", HTML(
-              '<img src="', paste0(regions[i, 'code'], "_map.png"), 
-              '" alt="', paste0("Map ", as.character(regions[i, 'code'])) , 
-              '" style="width:160;height:160px;">'
-          ))
-            ), "&nbsp;|&nbsp;"))   
+         HTML(paste0(div(class = "tooltip", 
+             HTML(paste0(' <h5>', txt[as.character(regions[i, 'code']), lang], "</h5> ")), 
+             span(class="tooltiptext", HTML(paste0(txt[paste0(regions[i, 'code'], ".short"), lang],
+               '<br><img src="', paste0(regions[i, 'code'], "_map.png"), 
+               '" alt="', paste0("Map ", as.character(regions[i, 'code'])) , 
+               '" style="width:160;height:160px;">'
+             )))
+         ), "&nbsp;|&nbsp;"))   
           }, simplify = F))
         ),
-        div(img(src = basename(chord.path), width= "100%")),
+        div(class = "container", HTML(html.code[html.grabbed[['istart']]:html.grabbed[['iend']]])),
         div(id = "cite", HTML(footer)),
         HTML(iframeresizer)
-      )), file = html.out, libdir = "js"
+      )), file = paste0("chord_migration_", lang, ".html"), libdir = "js"
   )
-  
-     # move stuff
-    fileToMove <- c(html.out)
-    file.rename(from = fileToMove, to = paste0("output/", fileToMove))
- 
- 
-}
+  swi_libWidget_overwrite()
 
+  
+  
 ```
+

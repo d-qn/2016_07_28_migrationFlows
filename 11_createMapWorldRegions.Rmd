@@ -1,0 +1,116 @@
+---
+title: "00 create globe of different geographical regions"
+author: "Duc-Quang Nguyen"
+date: "9 sept 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+data.file <- "data/intlMigrantStock_wb.csv"
+
+region2iso3 <- structure(c(
+  "East Asia & Pacific (all income levels)", 
+  "Europe & Central Asia (all income levels)", 
+  "Latin America & Caribbean (all income levels)",
+  "Middle East & North Africa (all income levels)", 
+  "North America", "South Asia", 
+  "Sub-Saharan Africa (all income levels)"),
+  names = c( 'EAS', 'ECS', 'LCN', 'MNA', 'NAC', 'SAS', 'SSA'))
+
+library(dplyr)
+library(magrittr)
+library(tidyr)
+library(swiMap)
+library(readr)
+require(rgdal)
+# library(rgeos)
+library(maptools)
+require(ggplot2)
+library(ggmap)
+
+```
+
+
+```{r load data }
+# get a data.frame with country region (world bank data)
+data.read <- read_csv(data.file) %>% 
+  filter(region != "Aggregates") %>% 
+  select(-indicator, -value)
+
+data <- data.read %>% group_by(country, iso2c, iso3c) %>% 
+  summarise(region = last(region)) %>% ungroup()
+
+stopifnot(region2iso3 %in% unique(data$region))
+
+path <- getPathShp('world')
+layers <-  ogrListLayers(path)
+
+# read shapefiles for given layer
+world <- readOGR(path, layer = layers[1])
+world.df <- formatShp(world) %>% 
+  select(-LON, -LAT, -SUBREGION, -POP2005, -AREA, -piece)
+
+## Get centroids of spatialPolygonDataFrame and convert to dataframe
+centroids.df <- cbind(ISO2 = world$ISO2, data.frame(lon = coordinates(world)[, 1], 
+   lat = coordinates(world)[, 2]) )
+
+# Display map elements with no matching iso2c
+iso2.missing <- as.character(unique(world.df$ISO2)[which(!unique(world.df$ISO2) %in% data$iso2c)])
+world.df[match(iso2.missing, world.df$ISO2),]
+
+# hack 
+nam <- world.df[which(world.df$ISO2 == 'NA')[1],]
+data <- rbind(data, data.frame(country = nam$NAME, iso2c = nam$ISO2, iso3c = nam$ISO3, region = "Sub-Saharan Africa (all income levels)"))
+
+```
+
+
+```{r plot globe}
+mapTheme <- function() {
+  theme_minimal(base_size = 12) +
+      theme(
+        plot.margin = unit(c(0,0,0,0), "mm"),
+        panel.margin = unit(c(0,0,0,0), "mm"),
+        legend.position = "none",
+        panel.grid = element_blank(),
+        axis.ticks = element_blank(),
+        axis.line = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank()
+      )
+}
+
+lang <- 'FR'
+
+lapply(1:length(region2iso3), function(i) {
+  reg <- region2iso3[i]
+  dd <- data %>% filter(region == reg)
+  
+  df <- world.df
+  df$color <- ifelse(df$ISO2 %in% dd$iso2c, T, F)
+ 
+  labels <- centroids.df %>% filter(ISO2 %in% dd$iso2c)
+  labels$label <- countryTranslation(as.character(labels$ISO2), lang)[, -1]
+  
+  
+  lonLat.view <- df %>% filter(color == 1) %>%
+    summarise(
+      lat = mean(lat),
+      lon = mean(long)
+    ) %>% unlist()
+  
+  gg <- ggplot() + 
+    geom_polygon(data = df, aes(x = long, y = lat, group = group, fill = color), 
+    size = 0.01, colour = "#bfa681") + mapTheme() +
+    coord_map("ortho", orientation = c(lonLat.view['lat'], lonLat.view['lon'], 0)) + 
+    scale_fill_manual(values = c("#e5dbcd", "#aa8959")) +
+    scale_x_continuous(expand=c(0,0)) +
+    scale_y_continuous(expand=c(0,0))
+  
+  png(filename = paste0("output/", names(region2iso3)[i], "_map.png"), width = 480, height = 500, res = 300) 
+  plot(gg)
+  dev.off()
+})
+
+
+```
