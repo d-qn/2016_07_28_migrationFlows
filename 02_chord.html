@@ -239,12 +239,14 @@ idx &lt;- match(regions$name, df$region)
 if(any(is.na(idx))) stop()
 df$col1 &lt;- as.character(regions[idx, 'color'])
 df$code &lt;- regions[idx, 'code']  
-for (lang in 'EN') {
+
+
+for (lang in colnames(txt)) {
 
   chord.path &lt;- paste0(&quot;output/chordDiagram_&quot; , lang, &quot;.png&quot;)
   html.out &lt;- paste0(&quot;chord_migration_&quot;, lang, &quot;.html&quot;)
-  font.family &lt;-  &quot;OpenSans-CondensedLight&quot;
-  title.family &lt;- &quot;OpenSans-CondensedBold&quot;
+  font.family &lt;-  txt[&quot;font.family&quot;, lang]
+  title.family &lt;- txt[&quot;title.family&quot;, lang]
   
   df1 &lt;- df
   df1$region &lt;- txt[as.character(df1$code), lang]
@@ -258,7 +260,7 @@ for (lang in 'EN') {
   png(chord.path,  res = 200, pointsize = 9, height = 1100 * 1.1, 
         width = 1100 * 1.1)
   
-  par(mar=c(1,0,0,0), family = font.family)
+  par(mar=c(0,0,0,0), family = font.family)
   chordDiagram(x = df2, grid.col = df1$col, transparency = 0.25,
     order = df1$region, directional = 1,
     direction.type = c(&quot;arrows&quot;, &quot;diffHeight&quot;), diffHeight  = -0.04,
@@ -301,15 +303,16 @@ for (lang in 'EN') {
         p(
           invisible(sapply(1:nrow(regions), function (i) {
             HTML(
-              paste0(div(class = &quot;tooltip&quot;, HTML(paste0(' &lt;h5&gt;', txt[as.character(regions[i, 'code']), lang], &quot;&lt;/h5&gt; &quot;)), 
-              span(class=&quot;tooltiptext&quot;, HTML(
-              '&lt;img src=&quot;', paste0(regions[i, 'code'], &quot;_map.png&quot;), 
-              '&quot; alt=&quot;', paste0(&quot;Map &quot;, as.character(regions[i, 'code'])) , 
-              '&quot; style=&quot;width:160;height:160px;&quot;&gt;'
-          ))
-            ), &quot;&amp;nbsp;|&amp;nbsp;&quot;))   
+              paste0(div(class = &quot;tooltip&quot;, 
+                HTML(paste0(' &lt;h5&gt; ', txt[as.character(regions[i, 'code']), lang], &quot; &lt;/h5&gt; &quot;)), 
+                span(class=&quot;tooltiptext&quot;, HTML(
+                '&lt;img src=&quot;', paste0(regions[i, 'code'], &quot;_map.png&quot;), 
+                '&quot; alt=&quot;', paste0(&quot;Map &quot;, as.character(regions[i, 'code'])) , 
+                '&quot; style=&quot;width:160;height:160px;&quot;&gt;'))
+            )))   
           }, simplify = F))
         ),
+        p(HTML(&quot;&lt;br&gt;&quot;)),
         div(img(src = basename(chord.path), width= &quot;100%&quot;)),
         div(id = &quot;cite&quot;, HTML(footer)),
         HTML(iframeresizer)

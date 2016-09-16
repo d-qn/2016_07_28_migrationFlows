@@ -143,12 +143,14 @@ idx <- match(regions$name, df$region)
 if(any(is.na(idx))) stop()
 df$col1 <- as.character(regions[idx, 'color'])
 df$code <- regions[idx, 'code']  
-for (lang in 'EN') {
+
+
+for (lang in colnames(txt)) {
 
   chord.path <- paste0("output/chordDiagram_" , lang, ".png")
   html.out <- paste0("chord_migration_", lang, ".html")
-  font.family <-  "OpenSans-CondensedLight"
-  title.family <- "OpenSans-CondensedBold"
+  font.family <-  txt["font.family", lang]
+  title.family <- txt["title.family", lang]
   
   df1 <- df
   df1$region <- txt[as.character(df1$code), lang]
@@ -162,7 +164,7 @@ for (lang in 'EN') {
   png(chord.path,  res = 200, pointsize = 9, height = 1100 * 1.1, 
         width = 1100 * 1.1)
   
-  par(mar=c(1,0,0,0), family = font.family)
+  par(mar=c(0,0,0,0), family = font.family)
   chordDiagram(x = df2, grid.col = df1$col, transparency = 0.25,
     order = df1$region, directional = 1,
     direction.type = c("arrows", "diffHeight"), diffHeight  = -0.04,
@@ -205,15 +207,16 @@ for (lang in 'EN') {
         p(
           invisible(sapply(1:nrow(regions), function (i) {
             HTML(
-              paste0(div(class = "tooltip", HTML(paste0(' <h5>', txt[as.character(regions[i, 'code']), lang], "</h5> ")), 
-              span(class="tooltiptext", HTML(
-              '<img src="', paste0(regions[i, 'code'], "_map.png"), 
-              '" alt="', paste0("Map ", as.character(regions[i, 'code'])) , 
-              '" style="width:160;height:160px;">'
-          ))
-            ), "&nbsp;|&nbsp;"))   
+              paste0(div(class = "tooltip", 
+                HTML(paste0(' <h5> ', txt[as.character(regions[i, 'code']), lang], " </h5> ")), 
+                span(class="tooltiptext", HTML(
+                '<img src="', paste0(regions[i, 'code'], "_map.png"), 
+                '" alt="', paste0("Map ", as.character(regions[i, 'code'])) , 
+                '" style="width:160;height:160px;">'))
+            )))   
           }, simplify = F))
         ),
+        p(HTML("<br>")),
         div(img(src = basename(chord.path), width= "100%")),
         div(id = "cite", HTML(footer)),
         HTML(iframeresizer)

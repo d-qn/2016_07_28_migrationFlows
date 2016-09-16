@@ -1,7 +1,6 @@
 code,EN,FR,DE,IT,PT,AR,RU,ES,JA,ZH
 title1,"Migrant flows between regions of the World, 2010-2015",,,,,,,,,
 descr1,The arrows' width represents the number of migrants. The numbers around the circle shows the scale in million of migrants. The total number of people worldwide who left their native countries between 2010 and 2015 is 36.5 million or 0.5% of the world’s population.,,,,,,,,,
-tp.unit,millions,,,,,,,,,
 EECA,Eastern Europe & Central Asia,,,,,,,,,
 E,Europe,,,,,,,,,
 A,Africa,,,,,,,,,
@@ -17,4 +16,5 @@ source.url,http://www.oeaw.ac.at/fileadmin/subsites/Institute/VID/PDF/Publicatio
 code,Code,code,Code,Codice,código,الرمز,Код,código,コード,代码
 code.name,migest,migest,migest,migest,migest,migest,migest,migest,migest,migest
 code.url,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html,https://cran.r-project.org/web/packages/migest/index.html
-font.family,OpenSans-CondensedLight,,,,,,,,,
+font.family,OpenSans-CondensedLight,OpenSans-CondensedLight,OpenSans-CondensedLight,OpenSans-CondensedLight,OpenSans-CondensedLight,OpenSans-CondensedLight,OpenSans-CondensedLight,OpenSans-CondensedLight,PingFang SC Semibold,PingFang SC Semibold
+title.family,OpenSans-CondensedBold,OpenSans-CondensedBold,OpenSans-CondensedBold,OpenSans-CondensedBold,OpenSans-CondensedBold,OpenSans-CondensedBold,OpenSans-CondensedBold,OpenSans-CondensedBold,Hiragino Sans W1,PingFang SC Light

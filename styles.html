@@ -7,22 +7,27 @@ body, h1, h2, h3, h4, h5, h6, p, .descr, #cite, .footer {
    font-smoothing: antialiased;
    font-family: 'Open Sans Condensed', sans-serif;
    font-size: 17px;
-   margin:6px 2px 0px 2px;
+   margin:4px 2px 0px 1px;
 }
 
 .tooltip {
     position: relative;
     display: inline-block;
-    border-bottom: 1.5px dotted #666666;
+    vertical-align: middle;
+    background-color: #b3cccc;
+    padding-bottom: 4px;
+    padding-left: 3px;
+    padding-right: 3px;
+    line-height: 10px;
 }
 
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 160px;
-    background-color: #ecf1f8;
+    background-color: #b3cccc;
     text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
+    border-radius: 0.5px;
+    padding: 1px 0;
     position: absolute;
     z-index: 1;
     top: 150%;
@@ -75,7 +80,9 @@ body, h1, h2, h3, h4, h5, h6, p, .descr, #cite, .footer {
 }
 
 p {
+   text-indent: 5px;
    margin-left:2%;
+   max-width:70%;
 }
 h1 {
    font-size:2em;
@@ -100,8 +107,9 @@ h4 {
 }
 
 h5 {
-   font-size:0.95em;
-   color: #666666;
+   text-indent: 2px;
+   font-size:0.8em;
+   color: #ffffff;
 }
 
 h6 {
