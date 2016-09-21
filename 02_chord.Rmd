@@ -161,10 +161,10 @@ for (lang in colnames(txt)) {
   df2$dest_reg <- txt[as.character(regions[match(df2$dest_reg, regions$name), 'code']), lang]
   
   ## Create the static graphic
-  png(chord.path,  res = 200, pointsize = 9, height = 1100 * 1.1, 
-        width = 1100 * 1.1)
+  png(chord.path,  res = 300, pointsize = 7, height = 1000 * 1.1, 
+        width = 1000 * 1.1)
   
-  par(mar=c(0,0,0,0), family = font.family)
+  par(mar=c(0.1,0.1,0.1,0.1), family = font.family)
   chordDiagram(x = df2, grid.col = df1$col, transparency = 0.25,
     order = df1$region, directional = 1,
     direction.type = c("arrows", "diffHeight"), diffHeight  = -0.04,
@@ -180,11 +180,11 @@ for (lang in colnames(txt)) {
       reg = df1$region[df1$region == sector.index]
       color =  df1$col1[df1$region == sector.index]
         
-      circos.text(x = mean(xlim), y = 4.1, col = color,
-                  labels = reg, facing = "bending", cex = 1, family = title.family)
+      circos.text(x = mean(xlim), y = 3.9, col = color, niceFacing = T, 
+                  labels = reg, facing = "bending", cex = 1.05, family = title.family)
       circos.axis(h = "top", 
                   major.at = seq(0, xlim[2], by = ifelse(test = xlim[2]>10, yes = 2, no = 1)), 
-                  minor.ticks = 1, major.tick.percentage = 0.5, labels.cex = 0.6,
+                  minor.ticks = 1, major.tick.percentage = 0.5, labels.cex = 0.5, lwd = 0.5,
                   labels.niceFacing = FALSE)
     }
   )

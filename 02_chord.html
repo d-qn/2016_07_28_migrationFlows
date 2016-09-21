@@ -213,9 +213,9 @@ if(length(cidx &gt; 0)) {
   warning(paste(colnames(txt)[cidx], collapse = &quot;\t&quot;), &quot; languages will be discarded!&quot;, &quot;\n&quot;)
   txt &lt;- txt[,-cidx, drop = F]
 }</code></pre>
-<pre><code>## Warning: FR  DE  IT  PT  AR  RU  ES  JA  ZH languages will be discarded!</code></pre>
+<pre><code>## Warning: JA languages will be discarded!</code></pre>
 <pre class="r"><code>colnames(txt)</code></pre>
-<pre><code>## [1] &quot;EN&quot;</code></pre>
+<pre><code>## [1] &quot;EN&quot; &quot;FR&quot; &quot;DE&quot; &quot;IT&quot; &quot;PT&quot; &quot;AR&quot; &quot;RU&quot; &quot;ES&quot; &quot;ZH&quot;</code></pre>
 <pre class="r"><code>regions &lt;- data.frame(
   name = c(
     &quot;Eastern Europe &amp; Central Asia&quot;, &quot;Europe&quot;, &quot;Africa&quot;,
@@ -257,10 +257,10 @@ for (lang in colnames(txt)) {
   df2$dest_reg &lt;- txt[as.character(regions[match(df2$dest_reg, regions$name), 'code']), lang]
   
   ## Create the static graphic
-  png(chord.path,  res = 200, pointsize = 9, height = 1100 * 1.1, 
-        width = 1100 * 1.1)
+  png(chord.path,  res = 300, pointsize = 7, height = 1000 * 1.1, 
+        width = 1000 * 1.1)
   
-  par(mar=c(0,0,0,0), family = font.family)
+  par(mar=c(0.1,0.1,0.1,0.1), family = font.family)
   chordDiagram(x = df2, grid.col = df1$col, transparency = 0.25,
     order = df1$region, directional = 1,
     direction.type = c(&quot;arrows&quot;, &quot;diffHeight&quot;), diffHeight  = -0.04,
@@ -276,11 +276,11 @@ for (lang in colnames(txt)) {
       reg = df1$region[df1$region == sector.index]
       color =  df1$col1[df1$region == sector.index]
         
-      circos.text(x = mean(xlim), y = 4.1, col = color,
-                  labels = reg, facing = &quot;bending&quot;, cex = 1, family = title.family)
+      circos.text(x = mean(xlim), y = 3.9, col = color, niceFacing = T, 
+                  labels = reg, facing = &quot;bending&quot;, cex = 1.05, family = title.family)
       circos.axis(h = &quot;top&quot;, 
                   major.at = seq(0, xlim[2], by = ifelse(test = xlim[2]&gt;10, yes = 2, no = 1)), 
-                  minor.ticks = 1, major.tick.percentage = 0.5, labels.cex = 0.6,
+                  minor.ticks = 1, major.tick.percentage = 0.5, labels.cex = 0.5, lwd = 0.5,
                   labels.niceFacing = FALSE)
     }
   )
@@ -326,23 +326,248 @@ for (lang in colnames(txt)) {
  
 }</code></pre>
 <pre><code>## Note: 1 point is out of plotting region in sector 'Northern America', track '1'.
+## Note: 1 point is out of plotting region in sector 'Northern America', track '1'.
 ## Note: 16 points are out of plotting region in sector 'Northern America', track '1'.
+## Note: 1 point is out of plotting region in sector 'Africa', track '1'.
 ## Note: 1 point is out of plotting region in sector 'Africa', track '1'.
 ## Note: 6 points are out of plotting region in sector 'Africa', track '1'.
 ## Note: 1 point is out of plotting region in sector 'Europe', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europe', track '1'.
 ## Note: 6 points are out of plotting region in sector 'Europe', track '1'.
+## Note: 1 point is out of plotting region in sector 'Eastern Europe &amp; Central Asia', track '1'.
 ## Note: 1 point is out of plotting region in sector 'Eastern Europe &amp; Central Asia', track '1'.
 ## Note: 29 points are out of plotting region in sector 'Eastern Europe &amp; Central Asia', track '1'.
 ## Note: 1 point is out of plotting region in sector 'Western Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Western Asia', track '1'.
 ## Note: 12 points are out of plotting region in sector 'Western Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Southern Asia', track '1'.
 ## Note: 1 point is out of plotting region in sector 'Southern Asia', track '1'.
 ## Note: 13 points are out of plotting region in sector 'Southern Asia', track '1'.
 ## Note: 1 point is out of plotting region in sector 'Eastern Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Eastern Asia', track '1'.
 ## Note: 12 points are out of plotting region in sector 'Eastern Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceania', track '1'.
 ## Note: 1 point is out of plotting region in sector 'Oceania', track '1'.
 ## Note: 7 points are out of plotting region in sector 'Oceania', track '1'.
 ## Note: 1 point is out of plotting region in sector 'Latin America', track '1'.
+## Note: 1 point is out of plotting region in sector 'Latin America', track '1'.
 ## Note: 13 points are out of plotting region in sector 'Latin America', track '1'.</code></pre>
+<pre><code>## Note: 1 point is out of plotting region in sector 'Amérique du Nord', track '1'.
+## Note: 1 point is out of plotting region in sector 'Amérique du Nord', track '1'.
+## Note: 16 points are out of plotting region in sector 'Amérique du Nord', track '1'.
+## Note: 1 point is out of plotting region in sector 'Afrique', track '1'.
+## Note: 1 point is out of plotting region in sector 'Afrique', track '1'.
+## Note: 7 points are out of plotting region in sector 'Afrique', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europe', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europe', track '1'.
+## Note: 6 points are out of plotting region in sector 'Europe', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europe de l'Est et Asie centrale ', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europe de l'Est et Asie centrale ', track '1'.
+## Note: 33 points are out of plotting region in sector 'Europe de l'Est et Asie centrale ', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asie de l'Ouest', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asie de l'Ouest', track '1'.
+## Note: 15 points are out of plotting region in sector 'Asie de l'Ouest', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asie du Sud ', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asie du Sud ', track '1'.
+## Note: 12 points are out of plotting region in sector 'Asie du Sud ', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asie orientale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asie orientale', track '1'.
+## Note: 14 points are out of plotting region in sector 'Asie orientale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Océanie ', track '1'.
+## Note: 1 point is out of plotting region in sector 'Océanie ', track '1'.
+## Note: 8 points are out of plotting region in sector 'Océanie ', track '1'.
+## Note: 1 point is out of plotting region in sector 'Amérique latine ', track '1'.
+## Note: 1 point is out of plotting region in sector 'Amérique latine ', track '1'.
+## Note: 16 points are out of plotting region in sector 'Amérique latine ', track '1'.</code></pre>
+<pre><code>## Note: 1 point is out of plotting region in sector 'Nordamerika', track '1'.
+## Note: 1 point is out of plotting region in sector 'Nordamerika', track '1'.
+## Note: 11 points are out of plotting region in sector 'Nordamerika', track '1'.
+## Note: 1 point is out of plotting region in sector 'Afrika', track '1'.
+## Note: 1 point is out of plotting region in sector 'Afrika', track '1'.
+## Note: 6 points are out of plotting region in sector 'Afrika', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa', track '1'.
+## Note: 6 points are out of plotting region in sector 'Europa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Osteuropa und Zentralasien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Osteuropa und Zentralasien', track '1'.
+## Note: 26 points are out of plotting region in sector 'Osteuropa und Zentralasien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Vorderasien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Vorderasien', track '1'.
+## Note: 11 points are out of plotting region in sector 'Vorderasien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Südasien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Südasien', track '1'.
+## Note: 8 points are out of plotting region in sector 'Südasien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Ostasien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Ostasien', track '1'.
+## Note: 8 points are out of plotting region in sector 'Ostasien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Ozeanien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Ozeanien', track '1'.
+## Note: 8 points are out of plotting region in sector 'Ozeanien', track '1'.
+## Note: 1 point is out of plotting region in sector 'Lateinamerika', track '1'.
+## Note: 1 point is out of plotting region in sector 'Lateinamerika', track '1'.
+## Note: 13 points are out of plotting region in sector 'Lateinamerika', track '1'.</code></pre>
+<pre><code>## Note: 1 point is out of plotting region in sector 'America del Nord', track '1'.
+## Note: 1 point is out of plotting region in sector 'America del Nord', track '1'.
+## Note: 16 points are out of plotting region in sector 'America del Nord', track '1'.
+## Note: 1 point is out of plotting region in sector 'Africa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Africa', track '1'.
+## Note: 6 points are out of plotting region in sector 'Africa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa', track '1'.
+## Note: 6 points are out of plotting region in sector 'Europa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa orientale e Asia centrale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa orientale e Asia centrale', track '1'.
+## Note: 32 points are out of plotting region in sector 'Europa orientale e Asia centrale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia occidentale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia occidentale', track '1'.
+## Note: 16 points are out of plotting region in sector 'Asia occidentale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia meridionale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia meridionale', track '1'.
+## Note: 16 points are out of plotting region in sector 'Asia meridionale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia orientale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia orientale', track '1'.
+## Note: 14 points are out of plotting region in sector 'Asia orientale', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceania', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceania', track '1'.
+## Note: 7 points are out of plotting region in sector 'Oceania', track '1'.
+## Note: 1 point is out of plotting region in sector 'America Latina', track '1'.
+## Note: 1 point is out of plotting region in sector 'America Latina', track '1'.
+## Note: 14 points are out of plotting region in sector 'America Latina', track '1'.</code></pre>
+<pre><code>## Note: 1 point is out of plotting region in sector 'América do Norte', track '1'.
+## Note: 1 point is out of plotting region in sector 'América do Norte', track '1'.
+## Note: 16 points are out of plotting region in sector 'América do Norte', track '1'.
+## Note: 1 point is out of plotting region in sector 'África', track '1'.
+## Note: 1 point is out of plotting region in sector 'África', track '1'.
+## Note: 6 points are out of plotting region in sector 'África', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa', track '1'.
+## Note: 6 points are out of plotting region in sector 'Europa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Leste Europeu e Ásia Central', track '1'.
+## Note: 1 point is out of plotting region in sector 'Leste Europeu e Ásia Central', track '1'.
+## Note: 28 points are out of plotting region in sector 'Leste Europeu e Ásia Central', track '1'.
+## Note: 1 point is out of plotting region in sector 'Ásia Ocidental', track '1'.
+## Note: 1 point is out of plotting region in sector 'Ásia Ocidental', track '1'.
+## Note: 14 points are out of plotting region in sector 'Ásia Ocidental', track '1'.
+## Note: 1 point is out of plotting region in sector 'Sul da Ásia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Sul da Ásia', track '1'.
+## Note: 11 points are out of plotting region in sector 'Sul da Ásia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Leste Asiático', track '1'.
+## Note: 1 point is out of plotting region in sector 'Leste Asiático', track '1'.
+## Note: 14 points are out of plotting region in sector 'Leste Asiático', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceânia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceânia', track '1'.
+## Note: 7 points are out of plotting region in sector 'Oceânia', track '1'.
+## Note: 1 point is out of plotting region in sector 'América Latina', track '1'.
+## Note: 1 point is out of plotting region in sector 'América Latina', track '1'.
+## Note: 14 points are out of plotting region in sector 'América Latina', track '1'.</code></pre>
+<pre><code>## Note: 1 point is out of plotting region in sector 'Northern America', track '1'.
+## Note: 1 point is out of plotting region in sector 'Northern America', track '1'.
+## Note: 16 points are out of plotting region in sector 'Northern America', track '1'.
+## Note: 1 point is out of plotting region in sector 'Africa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Africa', track '1'.
+## Note: 6 points are out of plotting region in sector 'Africa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europe', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europe', track '1'.
+## Note: 6 points are out of plotting region in sector 'Europe', track '1'.
+## Note: 1 point is out of plotting region in sector 'Eastern Europe &amp; Central Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Eastern Europe &amp; Central Asia', track '1'.
+## Note: 29 points are out of plotting region in sector 'Eastern Europe &amp; Central Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Western Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Western Asia', track '1'.
+## Note: 12 points are out of plotting region in sector 'Western Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Southern Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Southern Asia', track '1'.
+## Note: 13 points are out of plotting region in sector 'Southern Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Eastern Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Eastern Asia', track '1'.
+## Note: 12 points are out of plotting region in sector 'Eastern Asia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceania', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceania', track '1'.
+## Note: 7 points are out of plotting region in sector 'Oceania', track '1'.
+## Note: 1 point is out of plotting region in sector 'Latin America', track '1'.
+## Note: 1 point is out of plotting region in sector 'Latin America', track '1'.
+## Note: 13 points are out of plotting region in sector 'Latin America', track '1'.</code></pre>
+<pre><code>## Note: 1 point is out of plotting region in sector 'Сев. Америка', track '1'.
+## Note: 1 point is out of plotting region in sector 'Сев. Америка', track '1'.
+## Note: 12 points are out of plotting region in sector 'Сев. Америка', track '1'.
+## Note: 1 point is out of plotting region in sector 'Африка', track '1'.
+## Note: 1 point is out of plotting region in sector 'Африка', track '1'.
+## Note: 6 points are out of plotting region in sector 'Африка', track '1'.
+## Note: 1 point is out of plotting region in sector 'Европа', track '1'.
+## Note: 1 point is out of plotting region in sector 'Европа', track '1'.
+## Note: 6 points are out of plotting region in sector 'Европа', track '1'.
+## Note: 1 point is out of plotting region in sector 'Восточная Европа и Центральная Азия', track '1'.
+## Note: 1 point is out of plotting region in sector 'Восточная Европа и Центральная Азия', track '1'.
+## Note: 35 points are out of plotting region in sector 'Восточная Европа и Центральная Азия', track '1'.
+## Note: 1 point is out of plotting region in sector 'Западная Азия', track '1'.
+## Note: 1 point is out of plotting region in sector 'Западная Азия', track '1'.
+## Note: 13 points are out of plotting region in sector 'Западная Азия', track '1'.
+## Note: 1 point is out of plotting region in sector 'Южная Азия', track '1'.
+## Note: 1 point is out of plotting region in sector 'Южная Азия', track '1'.
+## Note: 10 points are out of plotting region in sector 'Южная Азия', track '1'.
+## Note: 1 point is out of plotting region in sector 'Восточная Азия', track '1'.
+## Note: 1 point is out of plotting region in sector 'Восточная Азия', track '1'.
+## Note: 14 points are out of plotting region in sector 'Восточная Азия', track '1'.
+## Note: 1 point is out of plotting region in sector 'Океания', track '1'.
+## Note: 1 point is out of plotting region in sector 'Океания', track '1'.
+## Note: 7 points are out of plotting region in sector 'Океания', track '1'.
+## Note: 1 point is out of plotting region in sector 'Лат. Америка', track '1'.
+## Note: 1 point is out of plotting region in sector 'Лат. Америка', track '1'.
+## Note: 12 points are out of plotting region in sector 'Лат. Америка', track '1'.</code></pre>
+<pre><code>## Note: 1 point is out of plotting region in sector 'Norteamérica', track '1'.
+## Note: 1 point is out of plotting region in sector 'Norteamérica', track '1'.
+## Note: 12 points are out of plotting region in sector 'Norteamérica', track '1'.
+## Note: 1 point is out of plotting region in sector 'África', track '1'.
+## Note: 1 point is out of plotting region in sector 'África', track '1'.
+## Note: 6 points are out of plotting region in sector 'África', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa', track '1'.
+## Note: 6 points are out of plotting region in sector 'Europa', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa oriental y Asia central', track '1'.
+## Note: 1 point is out of plotting region in sector 'Europa oriental y Asia central', track '1'.
+## Note: 30 points are out of plotting region in sector 'Europa oriental y Asia central', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia occidental', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia occidental', track '1'.
+## Note: 15 points are out of plotting region in sector 'Asia occidental', track '1'.
+## Note: 1 point is out of plotting region in sector 'Sudasia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Sudasia', track '1'.
+## Note: 7 points are out of plotting region in sector 'Sudasia', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia oriental', track '1'.
+## Note: 1 point is out of plotting region in sector 'Asia oriental', track '1'.
+## Note: 13 points are out of plotting region in sector 'Asia oriental', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceanía', track '1'.
+## Note: 1 point is out of plotting region in sector 'Oceanía', track '1'.
+## Note: 7 points are out of plotting region in sector 'Oceanía', track '1'.
+## Note: 1 point is out of plotting region in sector 'Latinoamérica', track '1'.
+## Note: 1 point is out of plotting region in sector 'Latinoamérica', track '1'.
+## Note: 13 points are out of plotting region in sector 'Latinoamérica', track '1'.</code></pre>
+<pre><code>## Note: 1 point is out of plotting region in sector '北美', track '1'.
+## Note: 1 point is out of plotting region in sector '北美', track '1'.
+## Note: 2 points are out of plotting region in sector '北美', track '1'.
+## Note: 1 point is out of plotting region in sector '非洲', track '1'.
+## Note: 1 point is out of plotting region in sector '非洲', track '1'.
+## Note: 2 points are out of plotting region in sector '非洲', track '1'.
+## Note: 1 point is out of plotting region in sector '欧洲', track '1'.
+## Note: 1 point is out of plotting region in sector '欧洲', track '1'.
+## Note: 2 points are out of plotting region in sector '欧洲', track '1'.
+## Note: 1 point is out of plotting region in sector '东欧及中亚', track '1'.
+## Note: 1 point is out of plotting region in sector '东欧及中亚', track '1'.
+## Note: 5 points are out of plotting region in sector '东欧及中亚', track '1'.
+## Note: 1 point is out of plotting region in sector '西亚', track '1'.
+## Note: 1 point is out of plotting region in sector '西亚', track '1'.
+## Note: 2 points are out of plotting region in sector '西亚', track '1'.
+## Note: 1 point is out of plotting region in sector '南亚', track '1'.
+## Note: 1 point is out of plotting region in sector '南亚', track '1'.
+## Note: 2 points are out of plotting region in sector '南亚', track '1'.
+## Note: 1 point is out of plotting region in sector '东亚', track '1'.
+## Note: 1 point is out of plotting region in sector '东亚', track '1'.
+## Note: 2 points are out of plotting region in sector '东亚', track '1'.
+## Note: 1 point is out of plotting region in sector '大洋洲', track '1'.
+## Note: 1 point is out of plotting region in sector '大洋洲', track '1'.
+## Note: 3 points are out of plotting region in sector '大洋洲', track '1'.
+## Note: 1 point is out of plotting region in sector '拉丁美洲', track '1'.
+## Note: 1 point is out of plotting region in sector '拉丁美洲', track '1'.
+## Note: 4 points are out of plotting region in sector '拉丁美洲', track '1'.</code></pre>
 </div>
 </div>
 
