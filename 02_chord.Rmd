@@ -226,8 +226,6 @@ for (lang in colnames(txt)) {
      # move stuff
     fileToMove <- c(html.out)
     file.rename(from = fileToMove, to = paste0("output/", fileToMove))
- 
- 
 }
 
 ```
